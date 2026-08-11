@@ -56,7 +56,6 @@ class StockDBClient:
         if start and (not end or start == end):
             return start
             
-        # rd 范围查询语义: "<" 返回降序, ">" 返回升序
         op = "<" if desc else ">"
         s_val = start if start else "N"
         e_val = end if end else "N"
@@ -444,7 +443,10 @@ class StockDBClient:
         # 1. 确定底层查询的表名与时间表达式
         # 如果是周K或月K，底层先查询日K数据
         table = "分钟k" if frequency in ('1m', '5m', '15m', '30m', '60m') else "日k"
-        time_query = self.build_time_query_for_retrieval(start, end, desc, frequency)
+        requires_aggregation = frequency in ('5m', '15m', '30m', '60m', '1w', '1M')
+        # Aggregation consumes chronological records; keep LevelDB's ascending range order.
+        retrieval_desc = desc and not requires_aggregation
+        time_query = self.build_time_query_for_retrieval(start, end, retrieval_desc, frequency)
 
         # 2. 从底层数据库查询数据
         data_dict = {}
@@ -482,8 +484,10 @@ class StockDBClient:
             elif frequency in ('5m', '15m', '30m', '60m'):
                 records = self._merge_minutes_to_period(records, frequency)
             
-            # 查询方向已与 desc 语义一致(rd: ">" 升序, "<" 降序),无需反转
-
+            # LevelDB 天然有序，仅在需要降序时反转
+            if desc and requires_aggregation:
+                records = records[::-1]
+            
             # 限额截取
             if limit is not None:
                 records = records[:limit]
@@ -526,7 +530,10 @@ class StockDBClient:
         codes = code if is_batch else [code]
         
         table = "分钟k" if frequency in ('1m', '5m', '15m', '30m', '60m') else "日k"
-        time_query = self.build_time_query_for_retrieval(start, end, desc, frequency)
+        requires_aggregation = frequency in ('5m', '15m', '30m', '60m', '1w', '1M')
+        # Aggregation consumes chronological records; keep LevelDB's ascending range order.
+        retrieval_desc = desc and not requires_aggregation
+        time_query = self.build_time_query_for_retrieval(start, end, retrieval_desc, frequency)
 
         # 1. 异步读取数据
         data_dict = {}
@@ -563,8 +570,9 @@ class StockDBClient:
             elif frequency in ('5m', '15m', '30m', '60m'):
                 records = self._merge_minutes_to_period(records, frequency)
                 
-            # 查询方向已与 desc 语义一致,无需反转
-
+            if desc and requires_aggregation:
+                records = records[::-1]
+            
             if limit is not None:
                 records = records[:limit]
                 

@@ -1,4 +1,5 @@
-[07-27]经过众多用户几个月测试，bug已基本消除，即将提供mac和linux版本！
+[08-10]windows，macos，alpine，manylinux版本已发布。[08-04]mac，linux版本完成，已通过多轮压力测试，即将发布。
+
 # free-stockdb
 
 ## 本地量化数据引擎
@@ -7,7 +8,9 @@
 
 **❤️双击更新 -> 双击启动 -> 直接调用。**
 
-[下载地址1](https://github.com/hello245m/free-stockdb/releases/download/%E6%B5%8B%E8%AF%95%E7%89%88%E6%9C%AC0.2.1/free-stockdb-windows-v0.2.1-more-power.zip)
+[下载地址1(密码:79hf)](https://wwbrv.lanzoum.com/b0fql0gsh)
+
+[下载地址2](https://github.com/hello245m/free-stockdb/releases/tag/%E6%B5%8B%E8%AF%95%E7%89%88%E6%9C%AC0.3.1)
 
 数据本地落盘，研究不再依赖远程接口。
 
@@ -89,7 +92,7 @@ Windows 使用者可从 [Releases](https://github.com/hello245m/free-stockdb/rel
 ### 批量查询与计算
 
 ```python
-result = get_data(
+result = rd.get_data(
     code=7000_codes,         # 7000+ 股票 / ETF
     start=any_start,              # 任意时间周期
     end=any_end,
@@ -122,6 +125,53 @@ result = bk.get(
 ```
 
 `get_data()` 面向全市场、长周期和字段筛选；`zb.get()` 面向 39 种技术指标和 5 种指数计算；`bk.get()` 用于股票与行业/概念板块的双向映射。数据和计算始终在本机服务侧完成，避免研究代码反复把全市场数据搬运到远程 API 或临时 DataFrame 中。股票优化查询器rd.get/keys/vals()支持区间a>b，正则*，排序，截取[:num]，遍历，类SQL查询。
+
+### 批量写入私有存储[./mydb][08-05升级]
+#适用于：个性数据，动态因子，实时缓存，私有策略，私有数据，私有数据源，其他小众数据，一次写入本地永久保存
+```python
+批量写入：
+pipeline=rd.pipe()
+for i in range(10000000):
+    pipeline.mset(table,key,key2,value)
+await pipeline
+```
+```python
+单条写入：
+await rd.set(table,value)
+await rd.set(table,key,value)
+await rd.set(table,key,key2,value)
+#value_type:list/dict/int/float/str/bytes/df
+```
+```python
+字段修改：
+await rd.set(table,key,key2,new_value)
+await rd.get(table,key,key2).get("sub_key").set("sub_sub_key").val("new_value")
+写入/修改立即可读，无延迟+WAL无丢失。
+```
+```python
+批量读取：
+await rd.get(table,key,key2) ->list/dict/int/float/str/bytes/df
+await rd.get(table_exp,key_exp,key_exp).get(sub_key).all()[-3:] ->list/dict/int/float/str/bytes/df
+#exp：支持正则，范围，匹配，截取，遍历，子节点，列式读取
+#get：可替换成 len,keys,delete,vals,set,setr,setl
+详细参考示例：`rd_test.py`
+```
+### 批量挂载数据与单点读取[./dataN][08-05升级]
+sync_url.txt现支持多点写入：
+| 来源 | 类型 | 存储|
+|---|---|---|
+|site1 or path1| minutes_data|save_to_data_path|
+|site2 or path2| days_data |save_to_data1_path|
+|site3 or path3| ticks_data|save_to_data2_path|
+|your_site4_path4| your_data|save_to_your_path|
+...
+
+自动读取：
+```python
+rd.get()->auto_read_all_data
+
+```
+
 
 **内置 39 种技术指标：**
 
@@ -202,3 +252,4 @@ cmake --build cpp/build --config Release
 
 本项目用于软件学习、数据管理与量化研究，不构成投资建议。任何数据完整性、及时性和交易决策风险均应由使用者独立评估。
 
+[08-05]赞助商：[![Powered by Atlas Cloud](https://www.atlascloud.ai/oss-program/powered-by-atlas-cloud.svg)](https://www.atlascloud.ai/?ref=HRYSJ8)
