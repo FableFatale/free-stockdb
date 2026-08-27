@@ -8,9 +8,8 @@
 
 **❤️双击更新 -> 双击启动 -> 直接调用。**
 
-[下载地址1(密码:79hf)](https://wwbrv.lanzoum.com/b0fql0gsh)
 
-[下载地址2](https://github.com/hello245m/free-stockdb/releases/tag/%E6%B5%8B%E8%AF%95%E7%89%88%E6%9C%AC0.3.1)
+[下载地址1](https://github.com/hello245m/free-stockdb/releases/tag/%E6%B5%8B%E8%AF%95%E7%89%88%E6%9C%AC0.3.2)
 
 数据本地落盘，研究不再依赖远程接口。
 
