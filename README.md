@@ -9,8 +9,8 @@
 **❤️双击更新 -> 双击启动 -> 直接调用。**
 
 
-[[下载地址1](http://143300055)](http://143300055)
-[[下载地址2](https://github.com/hello245m/free-stockdb/releases/tag/%E6%B5%8B%E8%AF%950.3.2)](https://github.com/hello245m/free-stockdb/releases/tag/%E6%B5%8B%E8%AF%950.3.2)
+[下载地址1](http://143300055)
+[下载地址2](https://github.com/hello245m/free-stockdb/releases/tag/%E6%B5%8B%E8%AF%950.3.2)
 
 
 
